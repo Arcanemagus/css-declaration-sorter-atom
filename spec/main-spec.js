@@ -1,46 +1,56 @@
-'use strict';
-
-const cssDeclarationSorter = require('../lib/css-declaration-sorter');
-
-describe('CSS Declaration Sorter', function () {
+describe('CSS Declaration Sorter', () => {
   let editor;
   let workspaceElement;
-  
-  beforeEach(function () {
-    waitsForPromise(function () {
-      return atom.workspace.open().then(function (result) {
-        editor = result;
-        workspaceElement = atom.views.getView(editor);
-      })
-    })
-    
-    waitsForPromise(function () {
-      return Promise.all([
-        atom.packages.activatePackage('grammar-selector'),
-        atom.packages.activatePackage('language-css'),
-      ])
-    })
-  })
-  
-  it('sorts CSS', function () {
-    editor.setGrammar(atom.grammars.grammarForScopeName('source.css'));
-    editor.setText(`
-      a {
-      flex: 0;
-      border: 0;
-      }
-    `);
 
-    waitsForPromise(function() {
-      return atom.packages.activatePackage('css-declaration-sorter');
+  beforeEach(() =>
+    waitsForPromise(() =>
+      Promise.all([
+        // atom.packages.activatePackage('grammar-selector'),
+        atom.packages.activatePackage('language-css'),
+        // atom.packages.activatePackage('css-declaration-sorter'),
+      ]).then(() =>
+        atom.workspace.open().then((result) => {
+          editor = result;
+          workspaceElement = atom.views.getView(editor);
+        })
+      )
+    )
+  );
+
+  it('sorts CSS', () => {
+    let done;
+
+    const activationPromise = atom.packages.activatePackage('css-declaration-sorter');
+
+    editor.setGrammar(atom.grammars.grammarForScopeName('source.css'));
+    editor.setText('a {\n' +
+      '  flex: 0;\n' +
+      '  border: 0;\n' +
+      '}'
+    );
+    editor.onDidChange(() => {
+      expect(editor.getText()).toBe('a {\n' +
+        '  border: 0;\n' +
+        '  flex: 0;\n' +
+        '}'
+      );
+      done = true;
     });
+
     atom.commands.dispatch(workspaceElement, 'css-declaration-sorter:sort');
-    
-    expect(editor.getText()).toBe(`
-      a {
-        border: 0;
-        flex: 0;
-      }
-    `);
-  })
-})
+
+    waitsForPromise(() => activationPromise);
+
+    // expect(editor.getText()).toBe(`
+    //   a {
+    //     border: 0;
+    //     flex: 0;
+    //   }
+    // `);
+    waitsFor(() =>
+      done,
+      'editor contents to be checked after modification',
+      500
+    );
+  });
+});

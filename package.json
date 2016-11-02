@@ -17,7 +17,7 @@
     "lib",
     "menus"
   ],
-  "main": "./lib/css-declaration-sorter",
+  "main": "./lib/css-declaration-sorter.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/Siilwyn/css-declaration-sorter-atom.git"
@@ -35,7 +35,7 @@
   },
   "scripts": {
     "start": "atom .",
-    "lint": "eslint lib/*.js spec/*.js",
+    "lint": "eslint .",
     "watch": "watch 'npm run lint --silent' lib spec"
   },
   "dependencies": {
@@ -45,7 +45,29 @@
     "postcss-scss": "^0.3.0"
   },
   "devDependencies": {
-    "eslint": "^3.6.0",
+    "eslint": "^3.9.1",
+    "eslint-config-airbnb-base": "^9.0.0",
+    "eslint-plugin-import": "^2.0.1",
     "watch": "^0.19.2"
+  },
+  "eslintConfig": {
+    "extends": "airbnb-base",
+    "rules": {
+      "global-require": "off",
+      "import/no-unresolved": [
+        "error",
+        {
+          "ignore": [
+            "atom"
+          ]
+        }
+      ]
+    },
+    "globals": {
+      "atom": true
+    },
+    "env": {
+      "node": true
+    }
   }
 }
